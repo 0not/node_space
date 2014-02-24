@@ -3,10 +3,21 @@ function Node(id, parents, children) {
 	this.parents  = new NodeGroup(parents);
 	this.children = new NodeGroup(children);
 	
-	if (this.parents == null)
+	if (this.parents == null) {
 		this.parents = new NodeGroup();
-	if (this.children == null)
+	} else {
+		for (var p in this.parents.getMembers()) {
+			this.parents.getMembers()[p].addChild(this);
+		}
+	}
+	
+	if (this.children == null) {
 		this.children = new NodeGroup();
+	} else {
+		for (var c in this.children.getMembers()) {
+			this.children.getMembers()[c].addParent(this);
+		}
+	}
 }
 
 Node.prototype.addChild = function (node) {
@@ -24,8 +35,8 @@ Node.prototype.getChildren = function () {
 Node.prototype.getSiblings = function() {
 	var siblings = new NodeGroup();
 	
-	for (var p in this.getParents()) {
-		for (var s in p.getChildren()) {
+	for (var p in this.getParents().getMembers()) {
+		for (var s in p.getMembers()) {
 			siblings.add(s);
 		}
 		
@@ -33,6 +44,14 @@ Node.prototype.getSiblings = function() {
 	}
 	
 	return siblings;
+}
+
+Node.prototype.addParent = function (node) {
+	this.parents.add(node);
+}
+
+Node.prototype.removeParent = function (node) {
+	this.parents.remove(node);
 }
 
 Node.prototype.getParents = function () {
@@ -75,11 +94,15 @@ NodeGroup.prototype.remove = function(node) {
 		
 	delete this.members[id];
 }
-
+/*
 var kent    = new Node("kent");
 var kakala  = new Node("kakala");
 var parents = {kent: kent, kakala: kakala};
-var kara    = new Node("kara", parents);
+var evie    = new Node("evie");
+var kara    = new Node("kara", parents, {evie: evie});
+
+var amelie  = new Node("amelie", {kara: kara});
 var kam     = new Node("kam", parents);
 
 var ng = new NodeGroup([kent, kakala, kara, kam]);
+*/
